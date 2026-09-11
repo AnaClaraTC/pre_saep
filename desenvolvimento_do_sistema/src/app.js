@@ -1,12 +1,8 @@
 const express = require('express');
-const cors = require('cors');
 require('dotenv').config();
 
 const sequelize = require('./config/database');
 
-const { Usuario, Produto, Movimentacao } = require('./models'); 
-
-const autenticar = require('./middlewares/autenticar');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const authRoutes = require('./routes/authRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
@@ -14,14 +10,20 @@ const movimentacaoRoutes = require('./routes/movimentacaoRoutes');
 
 const app = express();
 
-app.use(cors());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.use(express.json());
 
 app.use('/auth', authRoutes);
 app.use('/usuarios', usuarioRoutes);
-
-app.use('/produtos', autenticar, produtoRoutes);
-app.use('/movimentacoes', autenticar, movimentacaoRoutes);
+app.use('/produtos', produtoRoutes);
+app.use('/movimentacoes', movimentacaoRoutes);
 
 const PORT = process.env.PORT || 3000;
 
